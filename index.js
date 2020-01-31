@@ -7,16 +7,17 @@ AWS.config.update({
 
 var dynamodb = new AWS.DynamoDB.DocumentClient();
 
-// 1. create and organization
-// const orgID = uuidv4();
+// 1. create Employee
+// const happyIncID = '7186b7cd-ef38-41c9-901e-4f759db54a05';
+// const empID = uuidv4();
 
 // var params = {
 //   TableName: 'happy-projects',
 //   Item: {
-//     PK: `ORG#${orgID}`,
-//     SK: `#METADATA#${orgID}`,
-//     name: 'ABC Inc.',
-//     tier: 'professional'
+//     PK: `ORG#${happyIncID}`,
+//     SK: `EMP#${empID}`,
+//     name: 'Jane Doe',
+//     tier: 'jane.doe@gmail.com'
 //   },
 //   ReturnValues: 'ALL_OLD'
 // };
@@ -26,17 +27,25 @@ var dynamodb = new AWS.DynamoDB.DocumentClient();
 //   else console.log(data);
 // });
 
-// 2. create an fixed-bid project in Happy Inc.
-// const abcIncOrgId = '9e520bc8-70f0-46a0-9351-120b23637333';
-// const projectID = uuidv4();
+// 2. Assign an Employee to a Project
+// const happyIncID = '7186b7cd-ef38-41c9-901e-4f759db54a05';
+// const projectX = '18890ffd-fc95-4564-b2d1-5a942cd8a461';
+// const projectY = '67c023af-1127-408d-8bb4-5f8ffaa53e71';
+// const projectF1 = 'd8ba0427-693a-4436-9d82-4c132e332b0f';
 
+// const nikhil = '169b0a6f-ab7f-4f28-a5a9-81e109ff4af1';
+// const john = '8dfb9efa-3d63-4971-8532-cac7b084943d';
+// const jane = '7f09f4d9-3494-4994-9caf-db2ec3a3b6c0';
+
+// // assign Employee to projectA of Happy Inc.
 // var params = {
 //   TableName: 'happy-projects',
 //   Item: {
-//     PK: `ORG#${abcIncOrgId}`,
-//     SK: `PRO#fixed-bid#${abcIncOrgId}`,
-//     name: 'Project F1',
-//     project_id: projectID
+//     PK: `ORG#${happyIncID}#PRO#${projectY}`,
+//     SK: `ORG#${happyIncID}#EMP#${jane}`,
+//     name: 'Jane',
+//     project: 'Project Y',
+//     date_of_join: new Date().toUTCString()
 //   },
 //   ReturnValues: 'ALL_OLD'
 // };
@@ -46,53 +55,37 @@ var dynamodb = new AWS.DynamoDB.DocumentClient();
 //   else console.log(data);
 // });
 
-// 3. Edit an Organization
-// const abcIncOrgId = '9e520bc8-70f0-46a0-9351-120b23637333';
+// 3. Find employee assigned to projectX of Happy Inc.
+// const happyIncID = '7186b7cd-ef38-41c9-901e-4f759db54a05';
+// const projectX = '18890ffd-fc95-4564-b2d1-5a942cd8a461';
 
 // var params = {
 //   TableName: 'happy-projects',
-//   Key: { PK: `ORG#${abcIncOrgId}`, SK: `#METADATA#${abcIncOrgId}` },
-//   UpdateExpression: 'set #org_id = :org_id',
-//   ExpressionAttributeNames: { '#org_id': 'org_id' },
+//   KeyConditionExpression: '#PK = :PK',
+//   ExpressionAttributeNames: {
+//     '#PK': 'PK'
+//   },
 //   ExpressionAttributeValues: {
-//     ':org_id': abcIncOrgId
+//     ':PK': `ORG#${happyIncID}#PRO#${projectX}`
 //   }
 // };
 
-// dynamodb.update(params, function(err, data) {
+// dynamodb.query(params, function(err, data) {
 //   if (err) console.log(err);
 //   else console.log(data);
 // });
 
-// 4. Find an Organization
-// const orgID = '7186b7cd-ef38-41c9-901e-4f759db54a05';
-
-// var params = {
-//   TableName: 'happy-projects',
-//   Key: {
-//     PK: `ORG#${orgID}`,
-//     SK: `#METADATA#${orgID}`
-//   }
-// };
-
-// dynamodb.get(params, function(err, data) {
-//   if (err) console.log(err);
-//   else console.log(data);
-// });
-
-// 4. Find all project of Happy Inc.
-const orgID = '7186b7cd-ef38-41c9-901e-4f759db54a05';
+// 4. Find employee assigned to projectX of Happy Inc.
+const happyIncID = '7186b7cd-ef38-41c9-901e-4f759db54a05';
+const nikhil = '169b0a6f-ab7f-4f28-a5a9-81e109ff4af1';
 
 var params = {
   TableName: 'happy-projects',
-  KeyConditionExpression: '#PK = :PK and begins_with(#SK, :SK)',
-  ExpressionAttributeNames: {
-    '#PK': 'PK',
-    '#SK': 'SK'
-  },
+  IndexName: 'Project-Employee-index',
+  KeyConditionExpression: '#SK = :SK',
+  ExpressionAttributeNames: { '#SK': 'SK' }, // since we have inverted SK and PK
   ExpressionAttributeValues: {
-    ':PK': `ORG#${orgID}`,
-    ':SK': 'PRO#'
+    ':SK': `ORG#${happyIncID}#EMP#${nikhil}`
   }
 };
 
